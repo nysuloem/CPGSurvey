@@ -1,0 +1,18 @@
+{
+  "name": "cpg-pre-interview-survey",
+  "version": "1.0.0",
+  "description": "Pre-interview background survey for the UTSC Computational Physiology Group study",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.19.0",
+    "nodemailer": "^9.0.3"
+  }
+}
