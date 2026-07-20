@@ -6,6 +6,16 @@ const CONFIDENCE_DOMAINS = [
   { key: "physiology", label: "Knowledge of human physiology" },
 ];
 
+const CAMPUS_INVOLVEMENTS = [
+  "Research courses (e.g., BIOB98, BIOD98)",
+  "Non-course-related research (e.g., co-op, volunteer research)",
+  "Campus clubs (e.g., BIOSA)",
+  "Varsity or intramural athletics",
+  "Student government/associations (e.g., SCSU)",
+  "Part-time employment (on- or off-campus)",
+  "Peer mentoring or tutoring programs",
+];
+
 function renderLikertGroup(container, prefix) {
   CONFIDENCE_DOMAINS.forEach((domain) => {
     const row = document.createElement("div");
@@ -35,13 +45,29 @@ function renderLikertGroup(container, prefix) {
   });
 }
 
+function renderCheckboxGroup(container, items, name) {
+  items.forEach((item) => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = name;
+    input.value = item;
+    const span = document.createElement("span");
+    span.textContent = item;
+    label.appendChild(input);
+    label.appendChild(span);
+    container.appendChild(label);
+  });
+}
+
 document.querySelectorAll(".likert-group").forEach((el) => {
   renderLikertGroup(el, el.dataset.prefix);
 });
-
-document.getElementById("postgrad_goal").addEventListener("change", (e) => {
-  document.getElementById("postgrad_other_wrap").hidden = e.target.value !== "Other";
-});
+renderCheckboxGroup(
+  document.getElementById("campus-involvements-group"),
+  CAMPUS_INVOLVEMENTS,
+  "campus_involvements"
+);
 
 const form = document.getElementById("survey-form");
 const errorEl = document.getElementById("form-error");
@@ -56,7 +82,12 @@ form.addEventListener("submit", async (e) => {
   const formData = new FormData(form);
   const payload = {};
   for (const [key, value] of formData.entries()) {
-    payload[key] = value;
+    if (key === "campus_involvements") {
+      if (!payload[key]) payload[key] = [];
+      payload[key].push(value);
+    } else {
+      payload[key] = value;
+    }
   }
 
   try {

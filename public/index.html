@@ -66,11 +66,6 @@
         </select>
       </label>
 
-      <label class="field" id="postgrad_other_wrap" hidden>
-        <span>Please specify</span>
-        <input type="text" name="postgrad_goal_other" />
-      </label>
-
       <label class="field">
         <span>Cumulative GPA</span>
         <input type="text" name="gpa" />
@@ -78,8 +73,8 @@
 
       <label class="field">
         <span>Other campus involvements</span>
-        <p class="hint">e.g., research courses (BIOB98, BIOD98, etc.), co-op, campus clubs, other jobs</p>
-        <textarea name="other_involvements" rows="3"></textarea>
+        <div class="checkbox-group" id="campus-involvements-group"></div>
+        <input type="text" name="campus_involvements_other" placeholder="Other (please specify)" />
       </label>
     </fieldset>
 
@@ -87,14 +82,8 @@
       <legend>CPG snapshot</legend>
 
       <label class="field">
-        <span>How long have you been a CPG member?</span>
-        <select name="cpg_membership_length">
-          <option value="">Select one…</option>
-          <option>&lt;1 semester</option>
-          <option>1–2 semesters</option>
-          <option>3–4 semesters</option>
-          <option>5+ semesters</option>
-        </select>
+        <span>How many semesters have you been a member of CPG?</span>
+        <input type="number" name="cpg_membership_semesters" min="0" max="20" step="1" />
       </label>
     </fieldset>
 

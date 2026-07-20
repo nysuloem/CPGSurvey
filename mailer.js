@@ -33,7 +33,7 @@ async function notifySubmission(response) {
     `Name: ${response.full_name}`,
     `Email: ${response.email}`,
     `Major: ${response.major || "—"}`,
-    `CPG membership length: ${response.cpg_membership_length || "—"}`,
+    `CPG membership (semesters): ${response.cpg_membership_semesters || "—"}`,
     `Submitted at: ${response.submitted_at || "just now"}`,
   ].join("\n");
 

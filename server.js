@@ -26,16 +26,18 @@ app.post("/api/submit", async (req, res) => {
     return Number.isFinite(n) ? n : null;
   };
 
+  const toJson = (v) => JSON.stringify(Array.isArray(v) ? v : []);
+
   const stmt = db.prepare(`
     INSERT INTO responses (
       full_name, email, semesters_utsc, semesters_other_institution, major,
-      postgrad_goal, postgrad_goal_other, gpa, other_involvements, cpg_membership_length,
+      postgrad_goal, gpa, campus_involvements, campus_involvements_other, cpg_membership_semesters,
       conf_entry_coding, conf_entry_lit_search, conf_entry_math, conf_entry_it, conf_entry_physiology,
       conf_today_coding, conf_today_lit_search, conf_today_math, conf_today_it, conf_today_physiology,
       notes
     ) VALUES (
       @full_name, @email, @semesters_utsc, @semesters_other_institution, @major,
-      @postgrad_goal, @postgrad_goal_other, @gpa, @other_involvements, @cpg_membership_length,
+      @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @cpg_membership_semesters,
       @conf_entry_coding, @conf_entry_lit_search, @conf_entry_math, @conf_entry_it, @conf_entry_physiology,
       @conf_today_coding, @conf_today_lit_search, @conf_today_math, @conf_today_it, @conf_today_physiology,
       @notes
@@ -50,10 +52,10 @@ app.post("/api/submit", async (req, res) => {
       semesters_other_institution: b.semesters_other_institution || null,
       major: b.major || null,
       postgrad_goal: b.postgrad_goal || null,
-      postgrad_goal_other: b.postgrad_goal_other || null,
       gpa: b.gpa || null,
-      other_involvements: b.other_involvements || null,
-      cpg_membership_length: b.cpg_membership_length || null,
+      campus_involvements: toJson(b.campus_involvements),
+      campus_involvements_other: b.campus_involvements_other || null,
+      cpg_membership_semesters: b.cpg_membership_semesters || null,
       conf_entry_coding: toInt(b.conf_entry_coding),
       conf_entry_lit_search: toInt(b.conf_entry_lit_search),
       conf_entry_math: toInt(b.conf_entry_math),
@@ -75,7 +77,7 @@ app.post("/api/submit", async (req, res) => {
       full_name: b.full_name,
       email: b.email,
       major: b.major,
-      cpg_membership_length: b.cpg_membership_length,
+      cpg_membership_semesters: b.cpg_membership_semesters,
       submitted_at: new Date().toISOString(),
     });
   } catch (err) {
