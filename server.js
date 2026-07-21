@@ -31,16 +31,16 @@ app.post("/api/submit", async (req, res) => {
   const stmt = db.prepare(`
     INSERT INTO responses (
       full_name, email, semesters_utsc, semesters_other_institution, major,
-      postgrad_goal, gpa, campus_involvements, campus_involvements_other, cpg_membership_semesters,
+      postgrad_goal, gpa, campus_involvements, campus_involvements_other, how_heard, cpg_membership_semesters,
       conf_entry_coding, conf_entry_lit_search, conf_entry_math, conf_entry_it, conf_entry_physiology,
       conf_today_coding, conf_today_lit_search, conf_today_math, conf_today_it, conf_today_physiology,
-      notes
+      overall_satisfaction, notes
     ) VALUES (
       @full_name, @email, @semesters_utsc, @semesters_other_institution, @major,
-      @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @cpg_membership_semesters,
+      @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @how_heard, @cpg_membership_semesters,
       @conf_entry_coding, @conf_entry_lit_search, @conf_entry_math, @conf_entry_it, @conf_entry_physiology,
       @conf_today_coding, @conf_today_lit_search, @conf_today_math, @conf_today_it, @conf_today_physiology,
-      @notes
+      @overall_satisfaction, @notes
     )
   `);
 
@@ -55,6 +55,7 @@ app.post("/api/submit", async (req, res) => {
       gpa: b.gpa || null,
       campus_involvements: toJson(b.campus_involvements),
       campus_involvements_other: b.campus_involvements_other || null,
+      how_heard: b.how_heard || null,
       cpg_membership_semesters: b.cpg_membership_semesters || null,
       conf_entry_coding: toInt(b.conf_entry_coding),
       conf_entry_lit_search: toInt(b.conf_entry_lit_search),
@@ -66,6 +67,7 @@ app.post("/api/submit", async (req, res) => {
       conf_today_math: toInt(b.conf_today_math),
       conf_today_it: toInt(b.conf_today_it),
       conf_today_physiology: toInt(b.conf_today_physiology),
+      overall_satisfaction: toInt(b.overall_satisfaction),
       notes: b.notes || null,
     });
 

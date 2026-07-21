@@ -45,6 +45,21 @@ function renderLikertGroup(container, prefix) {
   });
 }
 
+function renderSingleScale(container, name, min, max) {
+  for (let i = min; i <= max; i++) {
+    const optLabel = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = name;
+    input.value = i;
+    const span = document.createElement("span");
+    span.textContent = i;
+    optLabel.appendChild(input);
+    optLabel.appendChild(span);
+    container.appendChild(optLabel);
+  }
+}
+
 function renderCheckboxGroup(container, items, name) {
   items.forEach((item) => {
     const label = document.createElement("label");
@@ -63,6 +78,12 @@ function renderCheckboxGroup(container, items, name) {
 document.querySelectorAll(".likert-group").forEach((el) => {
   renderLikertGroup(el, el.dataset.prefix);
 });
+renderSingleScale(
+  document.getElementById("overall-satisfaction-scale"),
+  "overall_satisfaction",
+  1,
+  7
+);
 renderCheckboxGroup(
   document.getElementById("campus-involvements-group"),
   CAMPUS_INVOLVEMENTS,

@@ -43,6 +43,7 @@ db.exec(`
     gpa TEXT,
     campus_involvements TEXT,
     campus_involvements_other TEXT,
+    how_heard TEXT,
     cpg_membership_semesters TEXT,
     conf_entry_coding INTEGER,
     conf_entry_lit_search INTEGER,
@@ -54,6 +55,7 @@ db.exec(`
     conf_today_math INTEGER,
     conf_today_it INTEGER,
     conf_today_physiology INTEGER,
+    overall_satisfaction INTEGER,
     notes TEXT
   )
 `);
@@ -68,6 +70,12 @@ if (!hasCol("campus_involvements")) {
 }
 if (!hasCol("campus_involvements_other")) {
   db.exec("ALTER TABLE responses ADD COLUMN campus_involvements_other TEXT");
+}
+if (!hasCol("how_heard")) {
+  db.exec("ALTER TABLE responses ADD COLUMN how_heard TEXT");
+}
+if (!hasCol("overall_satisfaction")) {
+  db.exec("ALTER TABLE responses ADD COLUMN overall_satisfaction INTEGER");
 }
 if (!hasCol("cpg_membership_semesters")) {
   if (hasCol("cpg_membership_length")) {

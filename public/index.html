@@ -82,6 +82,11 @@
       <legend>CPG snapshot</legend>
 
       <label class="field">
+        <span>How did you hear about UTSC-CPG?</span>
+        <textarea name="how_heard" rows="2"></textarea>
+      </label>
+
+      <label class="field">
         <span>How many semesters have you been a member of CPG?</span>
         <input type="number" name="cpg_membership_semesters" min="0" max="20" step="1" />
       </label>
@@ -97,6 +102,15 @@
       <legend>Confidence — today</legend>
       <p class="hint">Same scale, same domains.</p>
       <div class="likert-group" data-prefix="conf_today"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Overall experience</legend>
+      <p class="hint">Rate 1 (very negative) to 7 (very positive).</p>
+      <div class="likert-row">
+        <span class="likert-label">Overall, how would you rate your experience in CPG?</span>
+        <div class="likert-scale" id="overall-satisfaction-scale"></div>
+      </div>
     </fieldset>
 
     <fieldset>
