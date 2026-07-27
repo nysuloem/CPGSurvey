@@ -1,6 +1,10 @@
 const CONFIDENCE_DOMAINS = [
-  { key: "coding", label: "Coding" },
-  { key: "lit_search", label: "Finding research on a specific topic" },
+  { key: "coding_xml", label: "Coding in XML (or similar markup/configuration languages)" },
+  { key: "coding_other", label: "Coding in other programming languages (e.g., Python, R, Java, C++)" },
+  { key: "simulating_physiology", label: "Simulating physiological processes" },
+  { key: "math_modeling", label: "Mathematical modeling of systems" },
+  { key: "search_casual", label: "Using Google Search or GenAI tools (e.g., ChatGPT) to find information" },
+  { key: "lit_search", label: "Conducting a scientific literature search (e.g., using databases such as PubMed or Google Scholar)" },
   { key: "math", label: "Mathematics, especially calculus" },
   { key: "it", label: "Using computers (e.g., installing software, using the command line)" },
   { key: "physiology", label: "Knowledge of human physiology" },

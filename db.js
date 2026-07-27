@@ -45,12 +45,20 @@ db.exec(`
     campus_involvements_other TEXT,
     how_heard TEXT,
     cpg_membership_semesters TEXT,
-    conf_entry_coding INTEGER,
+    conf_entry_coding_xml INTEGER,
+    conf_entry_coding_other INTEGER,
+    conf_entry_simulating_physiology INTEGER,
+    conf_entry_math_modeling INTEGER,
+    conf_entry_search_casual INTEGER,
     conf_entry_lit_search INTEGER,
     conf_entry_math INTEGER,
     conf_entry_it INTEGER,
     conf_entry_physiology INTEGER,
-    conf_today_coding INTEGER,
+    conf_today_coding_xml INTEGER,
+    conf_today_coding_other INTEGER,
+    conf_today_simulating_physiology INTEGER,
+    conf_today_math_modeling INTEGER,
+    conf_today_search_casual INTEGER,
     conf_today_lit_search INTEGER,
     conf_today_math INTEGER,
     conf_today_it INTEGER,
@@ -76,6 +84,23 @@ if (!hasCol("how_heard")) {
 }
 if (!hasCol("overall_satisfaction")) {
   db.exec("ALTER TABLE responses ADD COLUMN overall_satisfaction INTEGER");
+}
+const newConfCols = [
+  "conf_entry_coding_xml", "conf_entry_coding_other", "conf_entry_simulating_physiology", "conf_entry_math_modeling", "conf_entry_search_casual",
+  "conf_today_coding_xml", "conf_today_coding_other", "conf_today_simulating_physiology", "conf_today_math_modeling", "conf_today_search_casual",
+];
+for (const col of newConfCols) {
+  if (!hasCol(col)) {
+    db.exec(`ALTER TABLE responses ADD COLUMN ${col} INTEGER`);
+  }
+}
+// Old generic "coding" confidence item was split into three more specific
+// domains above. Drop the old columns rather than leave them stale.
+if (hasCol("conf_entry_coding")) {
+  db.exec("ALTER TABLE responses DROP COLUMN conf_entry_coding");
+}
+if (hasCol("conf_today_coding")) {
+  db.exec("ALTER TABLE responses DROP COLUMN conf_today_coding");
 }
 if (!hasCol("cpg_membership_semesters")) {
   if (hasCol("cpg_membership_length")) {
