@@ -1,5 +1,5 @@
 const CONFIDENCE_DOMAINS = [
-  { key: "coding_xml", label: "Coding in XML (or similar markup/configuration languages)" },
+  { key: "coding_xml", label: "Coding in XML" },
   { key: "coding_other", label: "Coding in other programming languages (e.g., Python, R, Java, C++)" },
   { key: "simulating_physiology", label: "Simulating physiological processes" },
   { key: "math_modeling", label: "Mathematical modeling of systems" },
@@ -16,9 +16,39 @@ const CAMPUS_INVOLVEMENTS = [
   "Campus clubs (e.g., BIOSA)",
   "Varsity or intramural athletics",
   "Student government/associations (e.g., SCSU)",
-  "Part-time employment (on- or off-campus)",
+  "Full-time or part-time employment (on- or off-campus)",
   "Peer mentoring or tutoring programs",
 ];
+
+function buildScaleButtons(name, min, max) {
+  const scale = document.createElement("div");
+  scale.className = "likert-scale";
+  for (let i = min; i <= max; i++) {
+    const optLabel = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = name;
+    input.value = i;
+    const span = document.createElement("span");
+    span.textContent = i;
+    optLabel.appendChild(input);
+    optLabel.appendChild(span);
+    scale.appendChild(optLabel);
+  }
+  return scale;
+}
+
+function buildScaleCaptions(min, max, captionMap) {
+  const captions = document.createElement("div");
+  captions.className = "scale-captions";
+  for (let i = min; i <= max; i++) {
+    const cap = document.createElement("span");
+    cap.className = "scale-caption";
+    cap.textContent = captionMap[i] || "";
+    captions.appendChild(cap);
+  }
+  return captions;
+}
 
 function renderLikertGroup(container, prefix) {
   CONFIDENCE_DOMAINS.forEach((domain) => {
@@ -30,38 +60,19 @@ function renderLikertGroup(container, prefix) {
     label.textContent = domain.label;
     row.appendChild(label);
 
-    const scale = document.createElement("div");
-    scale.className = "likert-scale";
-    for (let i = 1; i <= 5; i++) {
-      const optLabel = document.createElement("label");
-      const input = document.createElement("input");
-      input.type = "radio";
-      input.name = `${prefix}_${domain.key}`;
-      input.value = i;
-      const span = document.createElement("span");
-      span.textContent = i;
-      optLabel.appendChild(input);
-      optLabel.appendChild(span);
-      scale.appendChild(optLabel);
-    }
-    row.appendChild(scale);
+    const wrap = document.createElement("div");
+    wrap.className = "scale-wrap";
+    wrap.appendChild(buildScaleButtons(`${prefix}_${domain.key}`, 1, 5));
+    wrap.appendChild(buildScaleCaptions(1, 5, { 1: "Not confident at all", 5: "Very confident" }));
+    row.appendChild(wrap);
+
     container.appendChild(row);
   });
 }
 
-function renderSingleScale(container, name, min, max) {
-  for (let i = min; i <= max; i++) {
-    const optLabel = document.createElement("label");
-    const input = document.createElement("input");
-    input.type = "radio";
-    input.name = name;
-    input.value = i;
-    const span = document.createElement("span");
-    span.textContent = i;
-    optLabel.appendChild(input);
-    optLabel.appendChild(span);
-    container.appendChild(optLabel);
-  }
+function renderSingleScale(container, name, min, max, captionMap) {
+  container.appendChild(buildScaleButtons(name, min, max));
+  container.appendChild(buildScaleCaptions(min, max, captionMap));
 }
 
 function renderCheckboxGroup(container, items, name) {
@@ -86,7 +97,8 @@ renderSingleScale(
   document.getElementById("overall-satisfaction-scale"),
   "overall_satisfaction",
   1,
-  7
+  7,
+  { 1: "Very negative", 4: "Neutral", 7: "Very positive" }
 );
 renderCheckboxGroup(
   document.getElementById("campus-involvements-group"),

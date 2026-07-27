@@ -48,9 +48,14 @@ legend {
 }
 
 .hint {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: -4px;
+  font-size: 0.88rem;
+  color: #7a5b00;
+  background: #fff6dd;
+  border-left: 3px solid #e6a700;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin: 0 0 12px;
+  font-weight: 600;
 }
 
 .field {
@@ -123,6 +128,25 @@ textarea { resize: vertical; }
   background: var(--blue);
   color: white;
   border-color: var(--blue);
+}
+
+.scale-wrap {
+  flex: 1;
+}
+
+.scale-captions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.scale-caption {
+  flex: 1;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--blue);
+  line-height: 1.25;
 }
 
 .checkbox-group {
