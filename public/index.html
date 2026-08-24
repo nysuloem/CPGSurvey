@@ -8,124 +8,166 @@
 </head>
 <body>
 <main class="wrap">
-  <header>
-    <h1>Computational Physiology Group — Pre-Interview Survey</h1>
-    <p class="sub">
-      This should take about 2 minutes. Only your name and email are required — everything else
-      is optional, so skip anything you'd prefer not to answer. Your answers will be linked to
-      your upcoming interview by Gursimar Taunk,
-      then de-identified together afterward, as described in the Information and Consent Letter
-      you received. If anything here doesn't match what you agreed to, please pause and reach out
-      to Dr. Brown before continuing.
-    </p>
-  </header>
+  <section id="consent-step" aria-labelledby="consent-title">
+    <header>
+      <p class="eyebrow">Before you begin</p>
+      <h1 id="consent-title">Information and Consent Letter</h1>
+      <p class="sub">
+        Please read the Information and Consent Letter below. You may also download or open a copy
+        for your records. After reading it, select one of the two choices beneath the letter.
+      </p>
+    </header>
 
-  <form id="survey-form">
+    <div class="document-actions">
+      <a class="button-link" href="Information-Consent-Letter.pdf" download>Download consent letter (PDF)</a>
+      <a class="secondary-link" href="Information-Consent-Letter.pdf" target="_blank" rel="noopener">Open in a new tab</a>
+    </div>
 
-    <fieldset>
-      <legend>Identification</legend>
+    <div class="pdf-frame-wrap">
+      <iframe
+        class="pdf-frame"
+        src="Information-Consent-Letter.pdf#view=FitH"
+        title="Information and Consent Letter"
+      ></iframe>
+      <p class="pdf-fallback">
+        If the letter does not appear above, please
+        <a href="Information-Consent-Letter.pdf" target="_blank" rel="noopener">open the PDF in a new tab</a>.
+      </p>
+    </div>
 
-      <label class="field">
-        <span>Full name <em>*</em></span>
-        <input type="text" name="full_name" required />
+    <fieldset class="consent-box">
+      <legend>Your consent decision</legend>
+      <p class="consent-prompt">
+        By selecting “I consent,” you confirm that you have read the Information and Consent Letter
+        and agree to have your background information collected for this study.
+      </p>
+      <label class="choice-row">
+        <input type="radio" name="consent_decision" value="consent" />
+        <span>I consent to participate in this study</span>
       </label>
-
-      <label class="field">
-        <span>UTSC email address <em>*</em></span>
-        <input type="email" name="email" required placeholder="you@mail.utoronto.ca" />
+      <label class="choice-row">
+        <input type="radio" name="consent_decision" value="decline" />
+        <span>I do not consent to participate in this study</span>
       </label>
+      <button type="button" id="consent-continue" disabled>Continue</button>
+      <p id="consent-error" class="error" hidden>Please select a consent decision before continuing.</p>
     </fieldset>
+  </section>
 
-    <fieldset>
-      <legend>Background</legend>
+  <section id="survey-step" hidden aria-labelledby="survey-title">
+    <header>
+      <h1 id="survey-title">Computational Physiology Group — Pre-Interview Survey</h1>
+      <p class="sub">
+        This should take about 2 minutes. Only your name and email are required — everything else
+        is optional, so skip anything you'd prefer not to answer. Your answers will be linked to
+        your upcoming interview by Gursimar Taunk, then de-identified together afterward, as described
+        in the Information and Consent Letter.
+      </p>
+      <button type="button" id="review-consent" class="text-button">Review the consent letter again</button>
+    </header>
 
-      <label class="field">
-        <span>Number of completed academic semesters at UTSC</span>
-        <input type="number" name="semesters_utsc" min="0" max="20" />
-      </label>
+    <form id="survey-form">
+      <fieldset>
+        <legend>Identification</legend>
+        <label class="field">
+          <span>Full name <em>*</em></span>
+          <input type="text" name="full_name" required />
+        </label>
+        <label class="field">
+          <span>UTSC email address <em>*</em></span>
+          <input type="email" name="email" required placeholder="you@mail.utoronto.ca" />
+        </label>
+      </fieldset>
 
-      <label class="field">
-        <span>Number of completed academic semesters at any other post-secondary institution</span>
-        <input type="number" name="semesters_other_institution" min="0" max="20" />
-      </label>
+      <fieldset>
+        <legend>Background</legend>
+        <label class="field">
+          <span>Number of completed academic semesters at UTSC</span>
+          <input type="number" name="semesters_utsc" min="0" max="20" />
+        </label>
+        <label class="field">
+          <span>Number of completed academic semesters at any other post-secondary institution</span>
+          <input type="number" name="semesters_other_institution" min="0" max="20" />
+        </label>
+        <label class="field">
+          <span>Major(s)/Specialist</span>
+          <input type="text" name="major" />
+        </label>
+        <label class="field">
+          <span>Post-graduation goal</span>
+          <select name="postgrad_goal" id="postgrad_goal">
+            <option value="">Select one…</option>
+            <option>Medicine/healthcare</option>
+            <option>Graduate school</option>
+            <option>Industry/job</option>
+            <option>Undecided</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Cumulative GPA</span>
+          <input type="text" name="gpa" />
+        </label>
+        <label class="field">
+          <span>Other campus involvements</span>
+          <div class="checkbox-group" id="campus-involvements-group"></div>
+          <input type="text" name="campus_involvements_other" placeholder="Other (please specify)" />
+        </label>
+      </fieldset>
 
-      <label class="field">
-        <span>Major(s)/Specialist</span>
-        <input type="text" name="major" />
-      </label>
+      <fieldset>
+        <legend>CPG snapshot</legend>
+        <label class="field">
+          <span>How did you hear about UTSC-CPG?</span>
+          <textarea name="how_heard" rows="2"></textarea>
+        </label>
+        <label class="field">
+          <span>How many semesters have you been a member of CPG?</span>
+          <input type="number" name="cpg_membership_semesters" min="0" max="20" step="1" />
+        </label>
+      </fieldset>
 
-      <label class="field">
-        <span>Post-graduation goal</span>
-        <select name="postgrad_goal" id="postgrad_goal">
-          <option value="">Select one…</option>
-          <option>Medicine/healthcare</option>
-          <option>Graduate school</option>
-          <option>Industry/job</option>
-          <option>Undecided</option>
-          <option value="Other">Other</option>
-        </select>
-      </label>
+      <fieldset>
+        <legend>Confidence — at entry into CPG</legend>
+        <p class="hint">👉 For each item below, rate yourself from 1 (not confident at all) to 5 (very confident).</p>
+        <div class="likert-group" data-prefix="conf_entry"></div>
+      </fieldset>
 
-      <label class="field">
-        <span>Cumulative GPA</span>
-        <input type="text" name="gpa" />
-      </label>
+      <fieldset>
+        <legend>Confidence — today</legend>
+        <p class="hint">👉 Same 1–5 scale, same items — how would you rate yourself today?</p>
+        <div class="likert-group" data-prefix="conf_today"></div>
+      </fieldset>
 
-      <label class="field">
-        <span>Other campus involvements</span>
-        <div class="checkbox-group" id="campus-involvements-group"></div>
-        <input type="text" name="campus_involvements_other" placeholder="Other (please specify)" />
-      </label>
-    </fieldset>
+      <fieldset>
+        <legend>Overall experience</legend>
+        <p class="hint">👉 Rate from 1 (very negative) to 7 (very positive). 4 means neutral.</p>
+        <div class="likert-row">
+          <span class="likert-label">Overall, how would you rate your experience in CPG?</span>
+          <div class="scale-wrap" id="overall-satisfaction-scale"></div>
+        </div>
+      </fieldset>
 
-    <fieldset>
-      <legend>CPG snapshot</legend>
+      <fieldset>
+        <legend>Before your interview</legend>
+        <label class="field">
+          <span>Anything you'd like Gursimar to know before your session?</span>
+          <textarea name="notes" rows="3"></textarea>
+        </label>
+      </fieldset>
 
-      <label class="field">
-        <span>How did you hear about UTSC-CPG?</span>
-        <textarea name="how_heard" rows="2"></textarea>
-      </label>
+      <button type="submit" id="submit-btn">Submit</button>
+      <p id="form-error" class="error" hidden></p>
+    </form>
+  </section>
 
-      <label class="field">
-        <span>How many semesters have you been a member of CPG?</span>
-        <input type="number" name="cpg_membership_semesters" min="0" max="20" step="1" />
-      </label>
-    </fieldset>
+  <div id="declined" class="status-card" hidden>
+    <h2>Thank you for letting us know.</h2>
+    <p>You have not consented to participate. No survey information has been collected or submitted.</p>
+    <button type="button" id="change-decision" class="text-button">Change my decision</button>
+  </div>
 
-    <fieldset>
-      <legend>Confidence — at entry into CPG</legend>
-      <p class="hint">👉 For each item below, rate yourself from 1 (not confident at all) to 5 (very confident).</p>
-      <div class="likert-group" data-prefix="conf_entry"></div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Confidence — today</legend>
-      <p class="hint">👉 Same 1–5 scale, same items — how would you rate yourself today?</p>
-      <div class="likert-group" data-prefix="conf_today"></div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Overall experience</legend>
-      <p class="hint">👉 Rate from 1 (very negative) to 7 (very positive). 4 means neutral.</p>
-      <div class="likert-row">
-        <span class="likert-label">Overall, how would you rate your experience in CPG?</span>
-        <div class="scale-wrap" id="overall-satisfaction-scale"></div>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Before your interview</legend>
-      <label class="field">
-        <span>Anything you'd like Gursimar to know before your session?</span>
-        <textarea name="notes" rows="3"></textarea>
-      </label>
-    </fieldset>
-
-    <button type="submit" id="submit-btn">Submit</button>
-    <p id="form-error" class="error" hidden></p>
-  </form>
-
-  <div id="thank-you" hidden>
+  <div id="thank-you" class="status-card" hidden>
     <h2>Thanks — you're all set.</h2>
     <p>Your responses have been recorded. Gursimar will follow up to schedule your interview if it isn't already on the calendar.</p>
   </div>

@@ -2,11 +2,11 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const db = require("./db");
-const { notifySubmission } = require("./mailer");
+const { getNotificationStatus, notifySubmission } = require("./mailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_KEY = process.env.ADMIN_KEY || "change-me";
+const ADMIN_KEY = process.env.ADMIN_KEY;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
@@ -14,29 +14,27 @@ app.use(express.static(path.join(__dirname, "public")));
 app.post("/api/submit", async (req, res) => {
   const b = req.body || {};
 
-  if (!b.full_name || !b.full_name.trim()) {
-    return res.status(400).json({ error: "Full name is required." });
+  if (b.consent !== true) {
+    return res.status(400).json({ error: "Consent is required before survey responses can be submitted." });
   }
-  if (!b.email || !b.email.trim()) {
-    return res.status(400).json({ error: "Email is required." });
-  }
+  if (!b.full_name || !b.full_name.trim()) return res.status(400).json({ error: "Full name is required." });
+  if (!b.email || !b.email.trim()) return res.status(400).json({ error: "Email is required." });
 
   const toInt = (v) => {
     const n = parseInt(v, 10);
     return Number.isFinite(n) ? n : null;
   };
-
   const toJson = (v) => JSON.stringify(Array.isArray(v) ? v : []);
 
   const stmt = db.prepare(`
     INSERT INTO responses (
-      full_name, email, semesters_utsc, semesters_other_institution, major,
+      consent_given, consented_at, full_name, email, semesters_utsc, semesters_other_institution, major,
       postgrad_goal, gpa, campus_involvements, campus_involvements_other, how_heard, cpg_membership_semesters,
       conf_entry_coding_xml, conf_entry_coding_other, conf_entry_simulating_physiology, conf_entry_math_modeling, conf_entry_search_casual, conf_entry_lit_search, conf_entry_math, conf_entry_it, conf_entry_physiology,
       conf_today_coding_xml, conf_today_coding_other, conf_today_simulating_physiology, conf_today_math_modeling, conf_today_search_casual, conf_today_lit_search, conf_today_math, conf_today_it, conf_today_physiology,
       overall_satisfaction, notes
     ) VALUES (
-      @full_name, @email, @semesters_utsc, @semesters_other_institution, @major,
+      1, @consented_at, @full_name, @email, @semesters_utsc, @semesters_other_institution, @major,
       @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @how_heard, @cpg_membership_semesters,
       @conf_entry_coding_xml, @conf_entry_coding_other, @conf_entry_simulating_physiology, @conf_entry_math_modeling, @conf_entry_search_casual, @conf_entry_lit_search, @conf_entry_math, @conf_entry_it, @conf_entry_physiology,
       @conf_today_coding_xml, @conf_today_coding_other, @conf_today_simulating_physiology, @conf_today_math_modeling, @conf_today_search_casual, @conf_today_lit_search, @conf_today_math, @conf_today_it, @conf_today_physiology,
@@ -45,7 +43,9 @@ app.post("/api/submit", async (req, res) => {
   `);
 
   try {
-    const info = stmt.run({
+    const submittedAt = new Date().toISOString();
+    stmt.run({
+      consented_at: submittedAt,
       full_name: b.full_name || null,
       email: b.email || null,
       semesters_utsc: b.semesters_utsc || null,
@@ -79,44 +79,48 @@ app.post("/api/submit", async (req, res) => {
       notes: b.notes || null,
     });
 
-    // Respond to the student immediately; don't make them wait on email delivery.
     res.json({ ok: true });
-
-    // Fire-and-forget notification — failures here are logged, not surfaced to the student.
-    notifySubmission({
+    void notifySubmission({
       full_name: b.full_name,
       email: b.email,
       major: b.major,
       cpg_membership_semesters: b.cpg_membership_semesters,
-      submitted_at: new Date().toISOString(),
-    });
+      submitted_at: submittedAt,
+    }).catch((err) => console.error("Unexpected notification failure:", err));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Could not save response. Please try again." });
   }
 });
 
-// Simple protected CSV export for the research team.
-// Visit /admin/export?key=YOUR_ADMIN_KEY
+function requireAdmin(req, res, next) {
+  if (!ADMIN_KEY) return res.status(503).json({ error: "Administrative access is not configured." });
+  if (req.query.key !== ADMIN_KEY && req.get("x-admin-key") !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+  next();
+}
+
+app.get("/admin/notifications/status", requireAdmin, (req, res) => {
+  res.json({ ok: true, configured: getNotificationStatus() });
+});
+
+app.post("/admin/notifications/test", requireAdmin, async (req, res) => {
+  const results = await notifySubmission({ submitted_at: new Date().toISOString() }, { test: true });
+  const configured = Object.values(results).filter((r) => r.configured);
+  const ok = configured.length > 0 && configured.every((r) => r.sent);
+  res.status(ok ? 200 : 503).json({ ok, results });
+});
+
 app.get("/admin/export", (req, res) => {
-  if (req.query.key !== ADMIN_KEY) {
-    return res.status(403).send("Forbidden");
-  }
+  if (!ADMIN_KEY) return res.status(503).send("Administrative access is not configured.");
+  if (req.query.key !== ADMIN_KEY) return res.status(403).send("Forbidden");
   const rows = db.prepare("SELECT * FROM responses ORDER BY id").all();
-  if (rows.length === 0) {
-    return res.status(200).send("No responses yet.");
-  }
+  if (rows.length === 0) return res.status(200).send("No responses yet.");
   const headers = Object.keys(rows[0]);
   const escape = (v) => {
     if (v === null || v === undefined) return "";
-    const s = String(v).replace(/"/g, '""');
-    return `"${s}"`;
+    return `"${String(v).replace(/"/g, '""')}"`;
   };
-  const csv = [
-    headers.join(","),
-    ...rows.map((r) => headers.map((h) => escape(r[h])).join(",")),
-  ].join("\n");
-
+  const csv = [headers.join(","), ...rows.map((r) => headers.map((h) => escape(r[h])).join(","))].join("\n");
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", 'attachment; filename="cpg-survey-responses.csv"');
   res.send(csv);
@@ -124,6 +128,4 @@ app.get("/admin/export", (req, res) => {
 
 app.get("/health", (req, res) => res.send("ok"));
 
-app.listen(PORT, () => {
-  console.log(`CPG survey app listening on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`CPG survey app listening on port ${PORT}`));

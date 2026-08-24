@@ -54,18 +54,15 @@ function renderLikertGroup(container, prefix) {
   CONFIDENCE_DOMAINS.forEach((domain) => {
     const row = document.createElement("div");
     row.className = "likert-row";
-
     const label = document.createElement("span");
     label.className = "likert-label";
     label.textContent = domain.label;
     row.appendChild(label);
-
     const wrap = document.createElement("div");
     wrap.className = "scale-wrap";
     wrap.appendChild(buildScaleButtons(`${prefix}_${domain.key}`, 1, 5));
     wrap.appendChild(buildScaleCaptions(1, 5, { 1: "Not confident at all", 5: "Very confident" }));
     row.appendChild(wrap);
-
     container.appendChild(row);
   });
 }
@@ -90,21 +87,45 @@ function renderCheckboxGroup(container, items, name) {
   });
 }
 
-document.querySelectorAll(".likert-group").forEach((el) => {
-  renderLikertGroup(el, el.dataset.prefix);
+document.querySelectorAll(".likert-group").forEach((el) => renderLikertGroup(el, el.dataset.prefix));
+renderSingleScale(document.getElementById("overall-satisfaction-scale"), "overall_satisfaction", 1, 7, {
+  1: "Very negative", 4: "Neutral", 7: "Very positive",
 });
-renderSingleScale(
-  document.getElementById("overall-satisfaction-scale"),
-  "overall_satisfaction",
-  1,
-  7,
-  { 1: "Very negative", 4: "Neutral", 7: "Very positive" }
-);
-renderCheckboxGroup(
-  document.getElementById("campus-involvements-group"),
-  CAMPUS_INVOLVEMENTS,
-  "campus_involvements"
-);
+renderCheckboxGroup(document.getElementById("campus-involvements-group"), CAMPUS_INVOLVEMENTS, "campus_involvements");
+
+const consentStep = document.getElementById("consent-step");
+const surveyStep = document.getElementById("survey-step");
+const declined = document.getElementById("declined");
+const consentContinue = document.getElementById("consent-continue");
+const consentChoices = document.querySelectorAll('input[name="consent_decision"]');
+let hasConsented = false;
+
+function showOnly(section) {
+  [consentStep, surveyStep, declined, document.getElementById("thank-you")].forEach((el) => {
+    el.hidden = el !== section;
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+consentChoices.forEach((choice) => {
+  choice.addEventListener("change", () => {
+    consentContinue.disabled = false;
+    document.getElementById("consent-error").hidden = true;
+  });
+});
+
+consentContinue.addEventListener("click", () => {
+  const decision = document.querySelector('input[name="consent_decision"]:checked')?.value;
+  if (!decision) {
+    document.getElementById("consent-error").hidden = false;
+    return;
+  }
+  hasConsented = decision === "consent";
+  showOnly(hasConsented ? surveyStep : declined);
+});
+
+document.getElementById("review-consent").addEventListener("click", () => showOnly(consentStep));
+document.getElementById("change-decision").addEventListener("click", () => showOnly(consentStep));
 
 const form = document.getElementById("survey-form");
 const errorEl = document.getElementById("form-error");
@@ -112,12 +133,17 @@ const submitBtn = document.getElementById("submit-btn");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (!hasConsented) {
+    showOnly(consentStep);
+    document.getElementById("consent-error").hidden = false;
+    return;
+  }
   errorEl.hidden = true;
   submitBtn.disabled = true;
   submitBtn.textContent = "Submitting…";
 
   const formData = new FormData(form);
-  const payload = {};
+  const payload = { consent: true };
   for (const [key, value] of formData.entries()) {
     if (key === "campus_involvements") {
       if (!payload[key]) payload[key] = [];
@@ -135,9 +161,8 @@ form.addEventListener("submit", async (e) => {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Something went wrong.");
-
-    form.hidden = true;
-    document.getElementById("thank-you").hidden = false;
+    form.reset();
+    showOnly(document.getElementById("thank-you"));
   } catch (err) {
     errorEl.textContent = err.message;
     errorEl.hidden = false;
