@@ -17,12 +17,8 @@ function getTransporter() {
 function getNotificationStatus() {
   return {
     email: Boolean(getTransporter() && process.env.NOTIFY_EMAIL),
-    sms: Boolean(
-      process.env.TWILIO_ACCOUNT_SID &&
-      process.env.TWILIO_AUTH_TOKEN &&
-      process.env.TWILIO_FROM_NUMBER &&
-      process.env.NOTIFY_SMS_TO
-    ),
+    sms: Boolean(process.env.TEXTBELT_API_KEY && process.env.NOTIFY_SMS_TO),
+    smsProvider: process.env.TEXTBELT_API_KEY ? "Textbelt" : null,
   };
 }
 
@@ -58,30 +54,33 @@ async function sendEmailNotification(response, { test = false } = {}) {
 }
 
 async function sendSmsNotification(response, { test = false } = {}) {
-  const { TWILIO_ACCOUNT_SID: sid, TWILIO_AUTH_TOKEN: token, TWILIO_FROM_NUMBER: from, NOTIFY_SMS_TO: to } = process.env;
-  if (!sid || !token || !from || !to) {
-    return { configured: false, sent: false, detail: "Twilio SMS variables are not fully configured." };
+  const { TEXTBELT_API_KEY: key, NOTIFY_SMS_TO: to } = process.env;
+  if (!key || !to) {
+    return { configured: false, sent: false, detail: "Textbelt API key or SMS recipient is not configured." };
   }
 
   // Deliberately exclude participant names, email addresses, and survey answers from SMS.
   const body = test
     ? "TEST: CPG survey text alerts are working. No student submitted a response."
-    : `New CPG survey response received at ${response.submitted_at || new Date().toISOString()}. Check the secure survey export.`;
-  const form = new URLSearchParams({ To: to, From: from, Body: body });
+    : "New CPG survey response received. Open the CPG Survey admin page to see who submitted.";
 
   try {
-    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(sid)}/Messages.json`, {
+    const res = await fetch("https://textbelt.com/text", {
       method: "POST",
-      headers: {
-        Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: form.toString(),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: to, message: body, key }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || `Twilio returned HTTP ${res.status}.`);
+    if (!res.ok || !data.success) throw new Error(data.error || `Textbelt returned HTTP ${res.status}.`);
     console.log(`${test ? "Test" : "Notification"} SMS accepted for ${to}`);
-    return { configured: true, sent: true, recipient: to, messageSid: data.sid || null };
+    return {
+      configured: true,
+      sent: true,
+      provider: "Textbelt",
+      recipient: to,
+      textId: data.textId || null,
+      quotaRemaining: data.quotaRemaining,
+    };
   } catch (err) {
     console.error("Failed to send notification SMS:", err.message);
     return { configured: true, sent: false, detail: err.message };
@@ -89,10 +88,22 @@ async function sendSmsNotification(response, { test = false } = {}) {
 }
 
 async function notifySubmission(response, options = {}) {
-  const [email, sms] = await Promise.all([
-    sendEmailNotification(response, options),
-    sendSmsNotification(response, options),
-  ]);
+  const sms = await sendSmsNotification(response, options);
+  if (sms.sent) {
+    return {
+      sms,
+      email: {
+        configured: Boolean(getTransporter() && process.env.NOTIFY_EMAIL),
+        sent: false,
+        suppressed: true,
+        detail: "Email not sent because the Textbelt SMS notification succeeded.",
+      },
+    };
+  }
+
+  // Keep the existing email path as a fallback until Textbelt is configured,
+  // and also if Textbelt ever rejects a message or runs out of quota.
+  const email = await sendEmailNotification(response, options);
   return { email, sms };
 }
 

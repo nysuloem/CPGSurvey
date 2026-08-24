@@ -70,7 +70,15 @@
     </header>
 
     <form id="survey-form">
-      <fieldset>
+      <div class="survey-progress" aria-live="polite">
+        <div class="progress-heading">
+          <span id="survey-progress-label">Step 1 of 7</span>
+          <span id="survey-progress-title">Identification</span>
+        </div>
+        <div class="progress-track" aria-hidden="true"><span id="survey-progress-bar"></span></div>
+      </div>
+
+      <fieldset class="survey-page" data-step-title="Identification">
         <legend>Identification</legend>
         <label class="field">
           <span>Full name <em>*</em></span>
@@ -82,7 +90,7 @@
         </label>
       </fieldset>
 
-      <fieldset>
+      <fieldset class="survey-page" data-step-title="Background">
         <legend>Background</legend>
         <label class="field">
           <span>Number of completed academic semesters at UTSC</span>
@@ -118,7 +126,7 @@
         </label>
       </fieldset>
 
-      <fieldset>
+      <fieldset class="survey-page" data-step-title="CPG snapshot">
         <legend>CPG snapshot</legend>
         <label class="field">
           <span>How did you hear about UTSC-CPG?</span>
@@ -130,19 +138,19 @@
         </label>
       </fieldset>
 
-      <fieldset>
+      <fieldset class="survey-page" data-step-title="Confidence at entry">
         <legend>Confidence — at entry into CPG</legend>
         <p class="hint">👉 For each item below, rate yourself from 1 (not confident at all) to 5 (very confident).</p>
         <div class="likert-group" data-prefix="conf_entry"></div>
       </fieldset>
 
-      <fieldset>
+      <fieldset class="survey-page" data-step-title="Confidence today">
         <legend>Confidence — today</legend>
         <p class="hint">👉 Same 1–5 scale, same items — how would you rate yourself today?</p>
         <div class="likert-group" data-prefix="conf_today"></div>
       </fieldset>
 
-      <fieldset>
+      <fieldset class="survey-page" data-step-title="Overall experience">
         <legend>Overall experience</legend>
         <p class="hint">👉 Rate from 1 (very negative) to 7 (very positive). 4 means neutral.</p>
         <div class="likert-row">
@@ -151,7 +159,7 @@
         </div>
       </fieldset>
 
-      <fieldset>
+      <fieldset class="survey-page" data-step-title="Before your interview">
         <legend>Before your interview</legend>
         <label class="field">
           <span>Anything you'd like Gursimar to know before your session?</span>
@@ -159,7 +167,11 @@
         </label>
       </fieldset>
 
-      <button type="submit" id="submit-btn">Submit</button>
+      <div class="survey-navigation">
+        <button type="button" id="previous-step" class="secondary-button">Back</button>
+        <button type="button" id="next-step">Next</button>
+        <button type="submit" id="submit-btn" hidden>Submit survey</button>
+      </div>
       <p id="form-error" class="error" hidden></p>
     </form>
   </section>

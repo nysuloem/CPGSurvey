@@ -133,6 +133,41 @@ document.getElementById("review-consent").addEventListener("click", () => showOn
 const form = document.getElementById("survey-form");
 const errorEl = document.getElementById("form-error");
 const submitBtn = document.getElementById("submit-btn");
+const surveyPages = Array.from(form.querySelectorAll(".survey-page"));
+const previousStepBtn = document.getElementById("previous-step");
+const nextStepBtn = document.getElementById("next-step");
+let currentSurveyPage = 0;
+
+function showSurveyPage(index, { scroll = true } = {}) {
+  currentSurveyPage = Math.max(0, Math.min(index, surveyPages.length - 1));
+  surveyPages.forEach((page, i) => { page.hidden = i !== currentSurveyPage; });
+  const stepNumber = currentSurveyPage + 1;
+  document.getElementById("survey-progress-label").textContent = `Step ${stepNumber} of ${surveyPages.length}`;
+  document.getElementById("survey-progress-title").textContent = surveyPages[currentSurveyPage].dataset.stepTitle;
+  document.getElementById("survey-progress-bar").style.width = `${(stepNumber / surveyPages.length) * 100}%`;
+  previousStepBtn.hidden = currentSurveyPage === 0;
+  nextStepBtn.hidden = currentSurveyPage === surveyPages.length - 1;
+  submitBtn.hidden = currentSurveyPage !== surveyPages.length - 1;
+  errorEl.hidden = true;
+  if (scroll) document.getElementById("survey-title").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function currentPageIsValid() {
+  const controls = Array.from(surveyPages[currentSurveyPage].querySelectorAll("input, select, textarea"));
+  for (const control of controls) {
+    if (!control.checkValidity()) {
+      control.reportValidity();
+      return false;
+    }
+  }
+  return true;
+}
+
+previousStepBtn.addEventListener("click", () => showSurveyPage(currentSurveyPage - 1));
+nextStepBtn.addEventListener("click", () => {
+  if (currentPageIsValid()) showSurveyPage(currentSurveyPage + 1);
+});
+showSurveyPage(0, { scroll: false });
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -165,6 +200,7 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Something went wrong.");
     form.reset();
+    currentSurveyPage = 0;
     showOnly(document.getElementById("thank-you"));
   } catch (err) {
     errorEl.textContent = err.message;

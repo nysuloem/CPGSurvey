@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CPG Survey Administration</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<main class="wrap admin-wrap">
+  <header>
+    <p class="eyebrow">Research team access</p>
+    <h1>CPG Survey Responses</h1>
+    <p class="sub">Enter the shared administrative key to see who has completed the survey. The key is used only for this browser session and is never placed in the URL.</p>
+  </header>
+
+  <form id="admin-login" class="admin-card">
+    <label class="field">
+      <span>Administrative key</span>
+      <input id="admin-key" type="password" autocomplete="current-password" required />
+    </label>
+    <button type="submit">Open response list</button>
+    <p id="admin-error" class="error" hidden></p>
+  </form>
+
+  <section id="responses-panel" hidden>
+    <div class="admin-toolbar">
+      <div>
+        <h2>Completed surveys</h2>
+        <p id="response-count" class="sub"></p>
+      </div>
+      <div class="toolbar-actions">
+        <button type="button" id="refresh-responses" class="secondary-button">Refresh</button>
+        <button type="button" id="download-csv">Download complete CSV</button>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Submitted</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Consent</th>
+            <th>Major</th>
+          </tr>
+        </thead>
+        <tbody id="responses-body"></tbody>
+      </table>
+    </div>
+    <p class="privacy-note">This page contains identifiable research information. Close the page when finished and do not share screenshots or the administrative key.</p>
+  </section>
+</main>
+<script src="admin.js"></script>
+</body>
+</html>

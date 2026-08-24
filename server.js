@@ -107,14 +107,23 @@ app.get("/admin/notifications/status", requireAdmin, (req, res) => {
 
 app.post("/admin/notifications/test", requireAdmin, async (req, res) => {
   const results = await notifySubmission({ submitted_at: new Date().toISOString() }, { test: true });
-  const configured = Object.values(results).filter((r) => r.configured);
+  const configured = Object.values(results).filter((r) => r.configured && !r.suppressed);
   const ok = configured.length > 0 && configured.every((r) => r.sent);
   res.status(ok ? 200 : 503).json({ ok, results });
 });
 
-app.get("/admin/export", (req, res) => {
-  if (!ADMIN_KEY) return res.status(503).send("Administrative access is not configured.");
-  if (req.query.key !== ADMIN_KEY) return res.status(403).send("Forbidden");
+app.get("/admin/api/responses", requireAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT id, submitted_at, consent_given, consented_at, full_name, email, major,
+           cpg_membership_semesters
+    FROM responses
+    ORDER BY id DESC
+    LIMIT 200
+  `).all();
+  res.json({ ok: true, responses: rows });
+});
+
+app.get("/admin/export", requireAdmin, (req, res) => {
   const rows = db.prepare("SELECT * FROM responses ORDER BY id").all();
   if (rows.length === 0) return res.status(200).send("No responses yet.");
   const headers = Object.keys(rows[0]);
@@ -126,6 +135,10 @@ app.get("/admin/export", (req, res) => {
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", 'attachment; filename="cpg-survey-responses.csv"');
   res.send(csv);
+});
+
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
 app.get("/health", (req, res) => res.send("ok"));
