@@ -11,13 +11,32 @@
   <header>
     <p class="eyebrow">Research team access</p>
     <h1>CPG Survey Responses</h1>
-    <p class="sub">Enter the shared administrative key to see who has completed the survey. The key is used only for this browser session and is never placed in the URL.</p>
+    <p id="admin-intro" class="sub">Sign in to see who has completed the survey.</p>
   </header>
 
-  <form id="admin-login" class="admin-card">
+  <form id="admin-setup" class="admin-card" hidden>
+    <h2>Create your private administrator password</h2>
+    <p class="sub">This can be completed only once. Enter the one-time setup code provided by the survey maintainer, then choose a password that only you know.</p>
     <label class="field">
-      <span>Administrative key</span>
-      <input id="admin-key" type="password" autocomplete="current-password" required />
+      <span>One-time setup code</span>
+      <input id="admin-setup-key" type="password" autocomplete="one-time-code" required />
+    </label>
+    <label class="field">
+      <span>New password <small>(at least 12 characters)</small></span>
+      <input id="admin-new-password" type="password" autocomplete="new-password" minlength="12" required />
+    </label>
+    <label class="field">
+      <span>Confirm new password</span>
+      <input id="admin-confirm-password" type="password" autocomplete="new-password" minlength="12" required />
+    </label>
+    <button type="submit">Create password and open dashboard</button>
+    <p id="setup-error" class="error" hidden></p>
+  </form>
+
+  <form id="admin-login" class="admin-card" hidden>
+    <label class="field">
+      <span>Administrator password</span>
+      <input id="admin-password" type="password" autocomplete="current-password" required />
     </label>
     <button type="submit">Open response list</button>
     <p id="admin-error" class="error" hidden></p>
@@ -32,6 +51,8 @@
       <div class="toolbar-actions">
         <button type="button" id="refresh-responses" class="secondary-button">Refresh</button>
         <button type="button" id="download-csv">Download complete CSV</button>
+        <button type="button" id="change-password" class="secondary-button">Change password</button>
+        <button type="button" id="admin-logout" class="secondary-button">Sign out</button>
       </div>
     </div>
 
@@ -49,7 +70,16 @@
         <tbody id="responses-body"></tbody>
       </table>
     </div>
-    <p class="privacy-note">This page contains identifiable research information. Close the page when finished and do not share screenshots or the administrative key.</p>
+    <form id="change-password-form" class="admin-card" hidden>
+      <h2>Change administrator password</h2>
+      <label class="field"><span>Current password</span><input id="current-password" type="password" autocomplete="current-password" required /></label>
+      <label class="field"><span>New password <small>(at least 12 characters)</small></span><input id="changed-password" type="password" autocomplete="new-password" minlength="12" required /></label>
+      <label class="field"><span>Confirm new password</span><input id="confirm-changed-password" type="password" autocomplete="new-password" minlength="12" required /></label>
+      <button type="submit">Save new password</button>
+      <button type="button" id="cancel-password-change" class="secondary-button">Cancel</button>
+      <p id="change-password-error" class="error" hidden></p>
+    </form>
+    <p class="privacy-note">This page contains identifiable research information. Sign out when finished and do not share screenshots or your password.</p>
   </section>
 </main>
 <script src="admin.js"></script>

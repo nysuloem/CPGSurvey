@@ -60,7 +60,15 @@ db.exec(`
     conf_today_physiology INTEGER,
     overall_satisfaction INTEGER,
     notes TEXT
-  )
+  );
+
+  CREATE TABLE IF NOT EXISTS admin_credentials (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    password_salt TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 const existingCols = db.prepare("PRAGMA table_info(responses)").all().map((c) => c.name);
