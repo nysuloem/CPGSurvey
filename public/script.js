@@ -95,13 +95,12 @@ renderCheckboxGroup(document.getElementById("campus-involvements-group"), CAMPUS
 
 const consentStep = document.getElementById("consent-step");
 const surveyStep = document.getElementById("survey-step");
-const declined = document.getElementById("declined");
 const consentContinue = document.getElementById("consent-continue");
 const consentChoices = document.querySelectorAll('input[name="consent_decision"]');
-let hasConsented = false;
+let consentDecision = null;
 
 function showOnly(section) {
-  [consentStep, surveyStep, declined, document.getElementById("thank-you")].forEach((el) => {
+  [consentStep, surveyStep, document.getElementById("thank-you")].forEach((el) => {
     el.hidden = el !== section;
   });
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -120,12 +119,16 @@ consentContinue.addEventListener("click", () => {
     document.getElementById("consent-error").hidden = false;
     return;
   }
-  hasConsented = decision === "consent";
-  showOnly(hasConsented ? surveyStep : declined);
+  consentDecision = decision === "consent";
+  const status = document.getElementById("consent-status");
+  status.textContent = consentDecision
+    ? "You chose to consent to participation in the study."
+    : "You chose not to consent to participation in the study. You may still complete this survey and attend your interview.";
+  status.classList.toggle("declined-decision", !consentDecision);
+  showOnly(surveyStep);
 });
 
 document.getElementById("review-consent").addEventListener("click", () => showOnly(consentStep));
-document.getElementById("change-decision").addEventListener("click", () => showOnly(consentStep));
 
 const form = document.getElementById("survey-form");
 const errorEl = document.getElementById("form-error");
@@ -133,7 +136,7 @@ const submitBtn = document.getElementById("submit-btn");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!hasConsented) {
+  if (consentDecision === null) {
     showOnly(consentStep);
     document.getElementById("consent-error").hidden = false;
     return;
@@ -143,7 +146,7 @@ form.addEventListener("submit", async (e) => {
   submitBtn.textContent = "Submitting…";
 
   const formData = new FormData(form);
-  const payload = { consent: true };
+  const payload = { consent: consentDecision };
   for (const [key, value] of formData.entries()) {
     if (key === "campus_involvements") {
       if (!payload[key]) payload[key] = [];

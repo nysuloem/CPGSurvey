@@ -41,6 +41,8 @@ textarea { resize: vertical; }
 .pdf-fallback { margin: 8px 0 0; color: var(--muted); font-size: 0.83rem; }
 .consent-box { padding-bottom: 18px; }
 .consent-prompt { margin-top: 2px; color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+.decision-notice { margin: 12px 0; padding: 10px 12px; border-left: 4px solid #2f7d32; border-radius: 4px; background: #edf7ee; color: #245d27; font-size: 0.9rem; font-weight: 600; }
+.decision-notice.declined-decision { border-left-color: #8a6500; background: #fff6dd; color: #6b4e00; }
 .choice-row { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0; padding: 12px; border: 1px solid var(--border); border-radius: 7px; cursor: pointer; }
 .choice-row:has(input:checked) { border-color: var(--blue); background: #edf5fb; }
 .choice-row input { margin-top: 3px; }

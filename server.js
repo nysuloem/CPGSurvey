@@ -14,8 +14,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.post("/api/submit", async (req, res) => {
   const b = req.body || {};
 
-  if (b.consent !== true) {
-    return res.status(400).json({ error: "Consent is required before survey responses can be submitted." });
+  if (typeof b.consent !== "boolean") {
+    return res.status(400).json({ error: "A consent decision is required before survey responses can be submitted." });
   }
   if (!b.full_name || !b.full_name.trim()) return res.status(400).json({ error: "Full name is required." });
   if (!b.email || !b.email.trim()) return res.status(400).json({ error: "Email is required." });
@@ -34,7 +34,7 @@ app.post("/api/submit", async (req, res) => {
       conf_today_coding_xml, conf_today_coding_other, conf_today_simulating_physiology, conf_today_math_modeling, conf_today_search_casual, conf_today_lit_search, conf_today_math, conf_today_it, conf_today_physiology,
       overall_satisfaction, notes
     ) VALUES (
-      1, @consented_at, @full_name, @email, @semesters_utsc, @semesters_other_institution, @major,
+      @consent_given, @consented_at, @full_name, @email, @semesters_utsc, @semesters_other_institution, @major,
       @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @how_heard, @cpg_membership_semesters,
       @conf_entry_coding_xml, @conf_entry_coding_other, @conf_entry_simulating_physiology, @conf_entry_math_modeling, @conf_entry_search_casual, @conf_entry_lit_search, @conf_entry_math, @conf_entry_it, @conf_entry_physiology,
       @conf_today_coding_xml, @conf_today_coding_other, @conf_today_simulating_physiology, @conf_today_math_modeling, @conf_today_search_casual, @conf_today_lit_search, @conf_today_math, @conf_today_it, @conf_today_physiology,
@@ -45,7 +45,8 @@ app.post("/api/submit", async (req, res) => {
   try {
     const submittedAt = new Date().toISOString();
     stmt.run({
-      consented_at: submittedAt,
+      consent_given: b.consent ? 1 : 0,
+      consented_at: b.consent ? submittedAt : null,
       full_name: b.full_name || null,
       email: b.email || null,
       semesters_utsc: b.semesters_utsc || null,
@@ -85,6 +86,7 @@ app.post("/api/submit", async (req, res) => {
       email: b.email,
       major: b.major,
       cpg_membership_semesters: b.cpg_membership_semesters,
+      consent_given: b.consent,
       submitted_at: submittedAt,
     }).catch((err) => console.error("Unexpected notification failure:", err));
   } catch (err) {

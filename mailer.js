@@ -34,6 +34,7 @@ async function sendEmailNotification(response, { test = false } = {}) {
   const summary = [
     `Name: ${response.full_name}`,
     `Email: ${response.email}`,
+    `Consent decision: ${response.consent_given ? "Consented" : "Did not consent"}`,
     `Major: ${response.major || "—"}`,
     `CPG membership (semesters): ${response.cpg_membership_semesters || "—"}`,
     `Submitted at: ${response.submitted_at || "just now"}`,
