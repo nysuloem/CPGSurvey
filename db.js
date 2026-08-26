@@ -38,6 +38,8 @@ db.exec(`
     gpa TEXT,
     campus_involvements TEXT,
     campus_involvements_other TEXT,
+    research_courses_completed TEXT,
+    graduate_school_discipline TEXT,
     how_heard TEXT,
     cpg_membership_semesters TEXT,
     conf_entry_coding_xml INTEGER,
@@ -78,6 +80,8 @@ if (!hasCol("consent_given")) db.exec("ALTER TABLE responses ADD COLUMN consent_
 if (!hasCol("consented_at")) db.exec("ALTER TABLE responses ADD COLUMN consented_at TEXT");
 if (!hasCol("campus_involvements")) db.exec("ALTER TABLE responses ADD COLUMN campus_involvements TEXT");
 if (!hasCol("campus_involvements_other")) db.exec("ALTER TABLE responses ADD COLUMN campus_involvements_other TEXT");
+if (!hasCol("research_courses_completed")) db.exec("ALTER TABLE responses ADD COLUMN research_courses_completed TEXT");
+if (!hasCol("graduate_school_discipline")) db.exec("ALTER TABLE responses ADD COLUMN graduate_school_discipline TEXT");
 if (!hasCol("how_heard")) db.exec("ALTER TABLE responses ADD COLUMN how_heard TEXT");
 if (!hasCol("overall_satisfaction")) db.exec("ALTER TABLE responses ADD COLUMN overall_satisfaction INTEGER");
 

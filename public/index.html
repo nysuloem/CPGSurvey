@@ -109,7 +109,7 @@
           <select name="postgrad_goal" id="postgrad_goal">
             <option value="">Select one…</option>
             <option>Medicine/healthcare</option>
-            <option>Graduate school</option>
+            <option value="Graduate school">Graduate School</option>
             <option>Industry/job</option>
             <option>Undecided</option>
             <option value="Other">Other</option>
@@ -123,6 +123,20 @@
           <span>Other campus involvements</span>
           <div class="checkbox-group" id="campus-involvements-group"></div>
           <input type="text" name="campus_involvements_other" placeholder="Other (please specify)" />
+        </label>
+      </fieldset>
+
+      <fieldset class="survey-page conditional-page" data-step-title="Research course details" data-condition="research-courses">
+        <legend>Research course details</legend>
+        <p class="hint">👉 Select every course or course type you have completed.</p>
+        <div class="checkbox-group" id="research-courses-group"></div>
+      </fieldset>
+
+      <fieldset class="survey-page conditional-page" data-step-title="Graduate school details" data-condition="graduate-school">
+        <legend>Graduate school details</legend>
+        <label class="field">
+          <span>What discipline are you considering for graduate school?</span>
+          <input type="text" name="graduate_school_discipline" placeholder="For example, physiology, neuroscience, or ecology" />
         </label>
       </fieldset>
 

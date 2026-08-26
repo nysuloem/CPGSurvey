@@ -20,6 +20,16 @@ const CAMPUS_INVOLVEMENTS = [
   "Peer mentoring or tutoring programs",
 ];
 
+const RESEARCH_COURSE_OPTIONS = [
+  "BIOB98",
+  "BIOB99",
+  "BIOB97",
+  "BIOC99",
+  "BIOD98",
+  "BIOD99",
+  "Course with a Lab Component (e.g., BIOB12, BIOB32, etc.)",
+];
+
 function buildScaleButtons(name, min, max) {
   const scale = document.createElement("div");
   scale.className = "likert-scale";
@@ -92,6 +102,7 @@ renderSingleScale(document.getElementById("overall-satisfaction-scale"), "overal
   1: "Very negative", 4: "Neutral", 7: "Very positive",
 });
 renderCheckboxGroup(document.getElementById("campus-involvements-group"), CAMPUS_INVOLVEMENTS, "campus_involvements");
+renderCheckboxGroup(document.getElementById("research-courses-group"), RESEARCH_COURSE_OPTIONS, "research_courses_completed");
 
 const consentStep = document.getElementById("consent-step");
 const surveyStep = document.getElementById("survey-step");
@@ -133,14 +144,45 @@ document.getElementById("review-consent").addEventListener("click", () => showOn
 const form = document.getElementById("survey-form");
 const errorEl = document.getElementById("form-error");
 const submitBtn = document.getElementById("submit-btn");
-const surveyPages = Array.from(form.querySelectorAll(".survey-page"));
+const allSurveyPages = Array.from(form.querySelectorAll(".survey-page"));
 const previousStepBtn = document.getElementById("previous-step");
 const nextStepBtn = document.getElementById("next-step");
 let currentSurveyPage = 0;
 
+function researchCoursesSelected() {
+  return Array.from(form.querySelectorAll('input[name="campus_involvements"]:checked'))
+    .some((input) => input.value.startsWith("Research courses"));
+}
+
+function graduateSchoolSelected() {
+  return document.getElementById("postgrad_goal").value === "Graduate school";
+}
+
+function pageConditionIsMet(page) {
+  if (page.dataset.condition === "research-courses") return researchCoursesSelected();
+  if (page.dataset.condition === "graduate-school") return graduateSchoolSelected();
+  return true;
+}
+
+function getActiveSurveyPages() {
+  return allSurveyPages.filter(pageConditionIsMet);
+}
+
+function syncConditionalPages() {
+  allSurveyPages.forEach((page) => {
+    const active = pageConditionIsMet(page);
+    page.querySelectorAll("input, select, textarea").forEach((control) => {
+      control.disabled = !active;
+    });
+  });
+}
+
 function showSurveyPage(index, { scroll = true } = {}) {
+  syncConditionalPages();
+  const surveyPages = getActiveSurveyPages();
   currentSurveyPage = Math.max(0, Math.min(index, surveyPages.length - 1));
-  surveyPages.forEach((page, i) => { page.hidden = i !== currentSurveyPage; });
+  allSurveyPages.forEach((page) => { page.hidden = true; });
+  surveyPages[currentSurveyPage].hidden = false;
   const stepNumber = currentSurveyPage + 1;
   document.getElementById("survey-progress-label").textContent = `Step ${stepNumber} of ${surveyPages.length}`;
   document.getElementById("survey-progress-title").textContent = surveyPages[currentSurveyPage].dataset.stepTitle;
@@ -153,6 +195,7 @@ function showSurveyPage(index, { scroll = true } = {}) {
 }
 
 function currentPageIsValid() {
+  const surveyPages = getActiveSurveyPages();
   const controls = Array.from(surveyPages[currentSurveyPage].querySelectorAll("input, select, textarea"));
   for (const control of controls) {
     if (!control.checkValidity()) {
@@ -183,7 +226,7 @@ form.addEventListener("submit", async (e) => {
   const formData = new FormData(form);
   const payload = { consent: consentDecision };
   for (const [key, value] of formData.entries()) {
-    if (key === "campus_involvements") {
+    if (key === "campus_involvements" || key === "research_courses_completed") {
       if (!payload[key]) payload[key] = [];
       payload[key].push(value);
     } else {

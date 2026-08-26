@@ -102,17 +102,20 @@ app.post("/api/submit", async (req, res) => {
     return Number.isFinite(n) ? n : null;
   };
   const toJson = (v) => JSON.stringify(Array.isArray(v) ? v : []);
+  const selectedResearchCourses = Array.isArray(b.campus_involvements)
+    && b.campus_involvements.some((item) => String(item).startsWith("Research courses"));
+  const selectedGraduateSchool = b.postgrad_goal === "Graduate school";
 
   const stmt = db.prepare(`
     INSERT INTO responses (
       consent_given, consented_at, full_name, email, semesters_utsc, semesters_other_institution, major,
-      postgrad_goal, gpa, campus_involvements, campus_involvements_other, how_heard, cpg_membership_semesters,
+      postgrad_goal, gpa, campus_involvements, campus_involvements_other, research_courses_completed, graduate_school_discipline, how_heard, cpg_membership_semesters,
       conf_entry_coding_xml, conf_entry_coding_other, conf_entry_simulating_physiology, conf_entry_math_modeling, conf_entry_search_casual, conf_entry_lit_search, conf_entry_math, conf_entry_it, conf_entry_physiology,
       conf_today_coding_xml, conf_today_coding_other, conf_today_simulating_physiology, conf_today_math_modeling, conf_today_search_casual, conf_today_lit_search, conf_today_math, conf_today_it, conf_today_physiology,
       overall_satisfaction, notes
     ) VALUES (
       @consent_given, @consented_at, @full_name, @email, @semesters_utsc, @semesters_other_institution, @major,
-      @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @how_heard, @cpg_membership_semesters,
+      @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @research_courses_completed, @graduate_school_discipline, @how_heard, @cpg_membership_semesters,
       @conf_entry_coding_xml, @conf_entry_coding_other, @conf_entry_simulating_physiology, @conf_entry_math_modeling, @conf_entry_search_casual, @conf_entry_lit_search, @conf_entry_math, @conf_entry_it, @conf_entry_physiology,
       @conf_today_coding_xml, @conf_today_coding_other, @conf_today_simulating_physiology, @conf_today_math_modeling, @conf_today_search_casual, @conf_today_lit_search, @conf_today_math, @conf_today_it, @conf_today_physiology,
       @overall_satisfaction, @notes
@@ -133,6 +136,8 @@ app.post("/api/submit", async (req, res) => {
       gpa: b.gpa || null,
       campus_involvements: toJson(b.campus_involvements),
       campus_involvements_other: b.campus_involvements_other || null,
+      research_courses_completed: selectedResearchCourses ? toJson(b.research_courses_completed) : "[]",
+      graduate_school_discipline: selectedGraduateSchool ? (b.graduate_school_discipline || null) : null,
       how_heard: b.how_heard || null,
       cpg_membership_semesters: b.cpg_membership_semesters || null,
       conf_entry_coding_xml: toInt(b.conf_entry_coding_xml),
