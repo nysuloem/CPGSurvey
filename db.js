@@ -42,6 +42,7 @@ db.exec(`
     graduate_school_discipline TEXT,
     how_heard TEXT,
     cpg_membership_semesters TEXT,
+    cpg_active_member TEXT,
     conf_entry_coding_xml INTEGER,
     conf_entry_coding_other INTEGER,
     conf_entry_simulating_physiology INTEGER,
@@ -93,6 +94,7 @@ for (const col of newConfCols) {
   if (!hasCol(col)) db.exec(`ALTER TABLE responses ADD COLUMN ${col} INTEGER`);
 }
 if (!hasCol("cpg_membership_semesters")) db.exec("ALTER TABLE responses ADD COLUMN cpg_membership_semesters TEXT");
+if (!hasCol("cpg_active_member")) db.exec("ALTER TABLE responses ADD COLUMN cpg_active_member TEXT");
 
 // Preserve superseded columns if they exist. Historical research data should
 // never be deleted automatically during an application deployment.

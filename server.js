@@ -109,13 +109,13 @@ app.post("/api/submit", async (req, res) => {
   const stmt = db.prepare(`
     INSERT INTO responses (
       consent_given, consented_at, full_name, email, semesters_utsc, semesters_other_institution, major,
-      postgrad_goal, gpa, campus_involvements, campus_involvements_other, research_courses_completed, graduate_school_discipline, how_heard, cpg_membership_semesters,
+      postgrad_goal, gpa, campus_involvements, campus_involvements_other, research_courses_completed, graduate_school_discipline, how_heard, cpg_membership_semesters, cpg_active_member,
       conf_entry_coding_xml, conf_entry_coding_other, conf_entry_simulating_physiology, conf_entry_math_modeling, conf_entry_search_casual, conf_entry_lit_search, conf_entry_math, conf_entry_it, conf_entry_physiology,
       conf_today_coding_xml, conf_today_coding_other, conf_today_simulating_physiology, conf_today_math_modeling, conf_today_search_casual, conf_today_lit_search, conf_today_math, conf_today_it, conf_today_physiology,
       overall_satisfaction, notes
     ) VALUES (
       @consent_given, @consented_at, @full_name, @email, @semesters_utsc, @semesters_other_institution, @major,
-      @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @research_courses_completed, @graduate_school_discipline, @how_heard, @cpg_membership_semesters,
+      @postgrad_goal, @gpa, @campus_involvements, @campus_involvements_other, @research_courses_completed, @graduate_school_discipline, @how_heard, @cpg_membership_semesters, @cpg_active_member,
       @conf_entry_coding_xml, @conf_entry_coding_other, @conf_entry_simulating_physiology, @conf_entry_math_modeling, @conf_entry_search_casual, @conf_entry_lit_search, @conf_entry_math, @conf_entry_it, @conf_entry_physiology,
       @conf_today_coding_xml, @conf_today_coding_other, @conf_today_simulating_physiology, @conf_today_math_modeling, @conf_today_search_casual, @conf_today_lit_search, @conf_today_math, @conf_today_it, @conf_today_physiology,
       @overall_satisfaction, @notes
@@ -140,6 +140,7 @@ app.post("/api/submit", async (req, res) => {
       graduate_school_discipline: selectedGraduateSchool ? (b.graduate_school_discipline || null) : null,
       how_heard: b.how_heard || null,
       cpg_membership_semesters: b.cpg_membership_semesters || null,
+      cpg_active_member: b.cpg_active_member === "Yes" || b.cpg_active_member === "No" ? b.cpg_active_member : null,
       conf_entry_coding_xml: toInt(b.conf_entry_coding_xml),
       conf_entry_coding_other: toInt(b.conf_entry_coding_other),
       conf_entry_simulating_physiology: toInt(b.conf_entry_simulating_physiology),
